@@ -44,6 +44,6 @@ everything up when the project is done being graded.
   
   Then there is Ruby execution, which is slow. From the Cloudwatch logs, each instance was handling 16-17 requests per second during the middle of the test. 16 * 8 * 200 = 25600 requests at -c 256, so this account's for 8301/25600 ≈ 1/3 of the response time.
   
-  API Gateway and AWS inner network probably also contributed, also they cannot be mesaured easily. 
+  API Gateway and AWS network probably also contributed, although they cannot be measured easily. 
   
   Lastly, some of the difference may be due to the fact that it wasn't a static page, and so it cannot be cached by, say, CDN. 
