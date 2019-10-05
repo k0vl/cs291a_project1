@@ -36,8 +36,11 @@ everything up when the project is done being graded.
 
 * Using data you’ve collected, describe how this service’s performance compares to that of your static webpage from Project 0 (remeasure those results if necessary).
 
-  This service is about 10 times slower than GitHub pages.
-
+  This service is about 10 times slower than GitHub pages at each concurrency level. However, my machine only hit the CPU bottleneck at 256 concurrent connections, at which point AWS is servicing 25% less connections compared to GitHub pages.
+  
 * What do you suspect accounts for the difference in performance between GitHub pages and your AWS Lambda web service?
 
-  AWS Lambda has to call the Ruby instances, which takes far longer than serving a static page. 
+  AWS Lambda takes a significant amount of time to spin up new lambda instances initially, and from the Cloudwatch logs I see ~200 lambda instances worked on the final test. Assuming each cold start takes 0.2 seconds, in total it would take 40 thread-seconds, which is ~1% of 4088 total thread-seconds. ((0.2s * 200) / ((2^9 -1) * 8s))  This is negligible.
+  Then there is Ruby execution, which is slow. From the Cloudwatch logs, each instance was handling 16-17 requests per second during the middle of the test. 16 * 8 * 200 = 25600 requests at -c 256, so this account's for 8301/25600 ≈ 1/3 of the response time. 
+  API Gateway and AWS inner network probably also contributed, also they cannot be mesaured easily. 
+  Lastly, some of the difference may be due to the fact that it wasn't a static page, and so it cannot be cached by, say, CDN. 
